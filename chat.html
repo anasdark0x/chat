@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>غرفة الدردشة</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+            margin: 0;
+        }
+
+        nav {
+            width: 100%;
+            background-color: #4CAF50;
+            padding: 10px 0;
+            text-align: center;
+            color: white;
+            font-size: 24px;
+        }
+
+        .chat-container {
+            width: 90%;
+            max-width: 600px;
+            background-color: white;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .chat-messages {
+            height: 300px;
+            overflow-y: scroll;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-bottom: 20px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+        }
+
+        .chat-message {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 10px;
+            background-color: #e1ffc7;
+            word-wrap: break-word;
+        }
+
+        .chat-input {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .chat-input input[type="text"] {
+            width: 75%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .chat-input button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .chat-input button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <i class="fas fa-comments"></i> غرفة الدردشة
+    </nav>
+    <div class="chat-container">
+        <div class="chat-messages" id="chat-messages">
+            <!-- الرسائل ستظهر هنا -->
+        </div>
+        <div class="chat-input">
+            <input type="text" id="chat-input" placeholder="اكتب رسالتك هنا">
+            <button onclick="sendMessage()"><i class="fas fa-paper-plane"></i> إرسال</button>
+        </div>
+    </div>
+
+    <script>
+        let username = localStorage.getItem('username') || '';
+
+        if (!username) {
+            alert('يجب تسجيل الدخول أولاً!');
+            window.location.href = 'index.html'; // إعادة توجيه المستخدم إلى صفحة تسجيل الدخول إذا لم يكن مسجلاً
+        }
+
+        function sendMessage() {
+            const message = document.getElementById('chat-input').value;
+            if (message) {
+                const chatMessages = document.getElementById('chat-messages');
+                const messageElement = document.createElement('div');
+                messageElement.className = 'chat-message';
+                messageElement.textContent = username + ": " + message;
+                chatMessages.appendChild(messageElement);
+                document.getElementById('chat-input').value = '';
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+        }
+    </script>
+</body>
+</html>
