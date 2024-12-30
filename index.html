@@ -45,42 +45,25 @@
     </div>
 
     <script>
-        let users = [];
-        let messages = [];
+        async function fetchJSON(file) {
+            const response = await fetch(file);
+            return await response.json();
+        }
+
+        async function saveJSON(file, data) {
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = file;
+            a.click();
+        }
+
+        let users = await fetchJSON('users.json');
+        let messages = await fetchJSON('messages.json');
         let currentUser = null;
 
-        // تحميل البيانات من JSON
-        fetch('users.json')
-            .then(response => response.json())
-            .then(data => users = data.users);
-
-        fetch('messages.json')
-            .then(response => response.json())
-            .then(data => messages = data.messages);
-
-        function saveUsers() {
-            // حفظ البيانات إلى JSON
-            fetch('users.json', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ users })
-            });
-        }
-
-        function saveMessages() {
-            // حفظ البيانات إلى JSON
-            fetch('messages.json', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ messages })
-            });
-        }
-
-        function createAccount() {
+        async function createAccount() {
             const username = document.getElementById("username").value;
             const password = document.getElementById("password").value;
 
@@ -89,13 +72,12 @@
                 return;
             }
 
-            // حفظ بيانات المستخدم
             users.push({ username, password });
-            saveUsers();
+            await saveJSON('users.json', { users });
             alert("تم إنشاء الحساب بنجاح");
         }
 
-        function login() {
+        async function login() {
             const username = document.getElementById("username").value;
             const password = document.getElementById("password").value;
 
@@ -104,12 +86,13 @@
             if (currentUser) {
                 document.getElementById("login").style.display = "none";
                 document.getElementById("chat").style.display = "block";
+                displayMessages();
             } else {
                 alert("اسم المستخدم أو كلمة المرور غير صحيحة");
             }
         }
 
-        function sendMessage() {
+        async function sendMessage() {
             const message = document.getElementById("message").value;
 
             if (!message) {
@@ -117,9 +100,8 @@
                 return;
             }
 
-            // حفظ الرسالة
             messages.push({ username: currentUser.username, message });
-            saveMessages();
+            await saveJSON('messages.json', { messages });
             displayMessages();
         }
 
