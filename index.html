@@ -3,136 +3,69 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>موقع الدردشة</title>
+    <title>ربح المال من مشاهدة الإعلانات</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             background-color: #f0f0f0;
             text-align: center;
+            margin: 0;
+            padding: 0;
         }
-        #login, #chat {
-            margin: auto;
-            width: 50%;
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        main {
+            padding: 20px;
+        }
+        footer {
+            background-color: #4CAF50;
+            color: white;
             padding: 10px;
+            position: fixed;
+            width: 100%;
+            bottom: 0;
+            text-align: center;
+        }
+        .ad {
             border: 1px solid #ccc;
-            border-radius: 10px;
+            padding: 10px;
+            margin: 10px 0;
             background-color: #fff;
         }
-        #messages {
-            height: 300px;
-            overflow-y: scroll;
-            border: 1px solid #ccc;
-            border-radius: 10px;
-            padding: 10px;
-            margin-bottom: 10px;
+        .contact {
+            margin-top: 20px;
         }
     </style>
 </head>
 <body>
-    <div id="login">
-        <h2>تسجيل الدخول</h2>
-        <input type="text" id="username" placeholder="اسم المستخدم">
-        <input type="password" id="password" placeholder="كلمة المرور">
-        <button onclick="login()">تسجيل الدخول</button>
-        <button onclick="createAccount()">إنشاء حساب</button>
-    </div>
-
-    <div id="chat" style="display:none;">
-        <h2>الدردشة</h2>
-        <div id="messages"></div>
-        <input type="text" id="message" placeholder="اكتب رسالتك هنا">
-        <button onclick="sendMessage()">إرسال</button>
-    </div>
-
-    <!-- إضافة Supabase -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@1.31.0/dist/umd/supabase.js"></script>
-    <script>
-        // إعداد Supabase
-        const SUPABASE_URL = 'https://dkvbvlqxacaevmnefapf.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRrdmJ2bHF4YWNhZXZtbmVmYXBmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzUzODg1MzUsImV4cCI6MjA1MDk2NDUzNX0.HulqVJhOh8OZe0kTj0sHoMOsjOTuJhL0ITRugcEUQTA';
-        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-        let currentUser = null;
-
-        async function createAccount() {
-            const username = document.getElementById("username").value;
-            const password = document.getElementById("password").value;
-
-            if (!username || !password) {
-                alert("يرجى إدخال جميع المعلومات");
-                return;
-            }
-
-            const { error } = await supabase.auth.signUp({
-                email: username,
-                password: password
-            });
-
-            if (error) {
-                alert("حدث خطأ أثناء إنشاء الحساب: " + error.message);
-            } else {
-                alert("تم إنشاء الحساب بنجاح");
-            }
-        }
-
-        async function login() {
-            const username = document.getElementById("username").value;
-            const password = document.getElementById("password").value;
-
-            const { user, error } = await supabase.auth.signIn({
-                email: username,
-                password: password
-            });
-
-            if (error) {
-                alert("اسم المستخدم أو كلمة المرور غير صحيحة");
-            } else {
-                currentUser = user;
-                document.getElementById("login").style.display = "none";
-                document.getElementById("chat").style.display = "block";
-                displayMessages();
-            }
-        }
-
-        async function sendMessage() {
-            const message = document.getElementById("message").value;
-
-            if (!message) {
-                alert("يرجى كتابة رسالة");
-                return;
-            }
-
-            const { error } = await supabase
-                .from('messages')
-                .insert([{ username: currentUser.email, message }]);
-
-            if (error) {
-                alert("حدث خطأ أثناء إرسال الرسالة: " + error.message);
-            } else {
-                displayMessages();
-            }
-        }
-
-        async function displayMessages() {
-            const { data: messages, error } = await supabase
-                .from('messages')
-                .select('*')
-                .order('timestamp', { ascending: true });
-
-            if (error) {
-                alert("حدث خطأ أثناء جلب الرسائل: " + error.message);
-                return;
-            }
-
-            const messagesDiv = document.getElementById("messages");
-            messagesDiv.innerHTML = "";
-
-            messages.forEach(msg => {
-                const msgDiv = document.createElement("div");
-                msgDiv.textContent = `${msg.username}: ${msg.message}`;
-                messagesDiv.appendChild(msgDiv);
-            });
-        }
-    </script>
+    <header>
+        <h1>ربح المال من مشاهدة الإعلانات</h1>
+    </header>
+    <main>
+        <h2>كيف تربح المال؟</h2>
+        <p>يمكنك ربح المال بسهولة عبر مشاهدة الإعلانات على موقعنا. كلما شاهدت المزيد من الإعلانات، زادت أرباحك!</p>
+        <div class="ad">
+            <h3>إعلان 1</h3>
+            <p>هذا هو الإعلان الأول. شاهد الإعلانات واربح المال!</p>
+        </div>
+        <div class="ad">
+            <h3>إعلان 2</h3>
+            <p>هذا هو الإعلان الثاني. شاهد الإعلانات واربح المال!</p>
+        </div>
+        <div class="ad">
+            <h3>إعلان 3</h3>
+            <p>هذا هو الإعلان الثالث. شاهد الإعلانات واربح المال!</p>
+        </div>
+        <div class="contact">
+            <p>الموقع حاليًا قيد التطوير. لمراسلتنا، يرجى الاتصال على الرقم التالي: +963953951382</p>
+        </div>
+    </main>
+    <footer>
+        <p>&copy; 2024 ربح المال من مشاهدة الإعلانات. جميع الحقوق محفوظة.</p>
+    </footer>
 </body>
 </html>
