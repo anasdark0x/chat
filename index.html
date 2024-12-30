@@ -44,23 +44,14 @@
         <button onclick="sendMessage()">إرسال</button>
     </div>
 
+    <!-- إضافة Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@1.31.0/dist/umd/supabase.js"></script>
     <script>
-        async function fetchJSON(file) {
-            const response = await fetch(file);
-            return await response.json();
-        }
+        // إعداد Supabase
+        const SUPABASE_URL = 'https://dkvbvlqxacaevmnefapf.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRrdmJ2bHF4YWNhZXZtbmVmYXBmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzUzODg1MzUsImV4cCI6MjA1MDk2NDUzNX0.HulqVJhOh8OZe0kTj0sHoMOsjOTuJhL0ITRugcEUQTA';
+        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        async function saveJSON(file, data) {
-            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = file;
-            a.click();
-        }
-
-        let users = await fetchJSON('users.json');
-        let messages = await fetchJSON('messages.json');
         let currentUser = null;
 
         async function createAccount() {
@@ -72,23 +63,34 @@
                 return;
             }
 
-            users.push({ username, password });
-            await saveJSON('users.json', { users });
-            alert("تم إنشاء الحساب بنجاح");
+            const { error } = await supabase.auth.signUp({
+                email: username,
+                password: password
+            });
+
+            if (error) {
+                alert("حدث خطأ أثناء إنشاء الحساب: " + error.message);
+            } else {
+                alert("تم إنشاء الحساب بنجاح");
+            }
         }
 
         async function login() {
             const username = document.getElementById("username").value;
             const password = document.getElementById("password").value;
 
-            currentUser = users.find(user => user.username === username && user.password === password);
+            const { user, error } = await supabase.auth.signIn({
+                email: username,
+                password: password
+            });
 
-            if (currentUser) {
+            if (error) {
+                alert("اسم المستخدم أو كلمة المرور غير صحيحة");
+            } else {
+                currentUser = user;
                 document.getElementById("login").style.display = "none";
                 document.getElementById("chat").style.display = "block";
                 displayMessages();
-            } else {
-                alert("اسم المستخدم أو كلمة المرور غير صحيحة");
             }
         }
 
@@ -100,12 +102,28 @@
                 return;
             }
 
-            messages.push({ username: currentUser.username, message });
-            await saveJSON('messages.json', { messages });
-            displayMessages();
+            const { error } = await supabase
+                .from('messages')
+                .insert([{ username: currentUser.email, message }]);
+
+            if (error) {
+                alert("حدث خطأ أثناء إرسال الرسالة: " + error.message);
+            } else {
+                displayMessages();
+            }
         }
 
-        function displayMessages() {
+        async function displayMessages() {
+            const { data: messages, error } = await supabase
+                .from('messages')
+                .select('*')
+                .order('timestamp', { ascending: true });
+
+            if (error) {
+                alert("حدث خطأ أثناء جلب الرسائل: " + error.message);
+                return;
+            }
+
             const messagesDiv = document.getElementById("messages");
             messagesDiv.innerHTML = "";
 
