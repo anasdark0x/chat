@@ -3,190 +3,135 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>صفحة تسجيل الدخول</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <title>موقع الدردشة</title>
     <style>
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            background-color: #f4f4f4;
-            margin: 0;
-        }
-
-        nav {
-            width: 100%;
-            background-color: #4CAF50;
-            padding: 10px 0;
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
             text-align: center;
-            color: white;
-            font-size: 24px;
         }
-
-        .container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-        }
-
-        .form-container {
-            width: 90%;
-            max-width: 400px;
-            background-color: white;
+        #login, #chat {
+            margin: auto;
+            width: 50%;
+            padding: 10px;
             border: 1px solid #ccc;
             border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
+            background-color: #fff;
         }
-
-        h2 {
-            margin-bottom: 20px;
-            text-align: center;
-        }
-
-        .input-group {
-            margin-bottom: 15px;
-        }
-
-        .input-group label {
-            display: block;
-            margin-bottom: 5px;
-        }
-
-        .input-group input {
-            width: 100%;
+        #messages {
+            height: 300px;
+            overflow-y: scroll;
+            border: 1px solid #ccc;
+            border-radius: 10px;
             padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-        }
-
-        .input-group input:focus {
-            border-color: #4CAF50;
-            outline: none;
-        }
-
-        .btn {
-            width: 100%;
-            padding: 10px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 18px;
-            margin-top: 10px;
-        }
-
-        .btn:hover {
-            background-color: #45a049;
-        }
-
-        .error-msg, .success-msg {
-            color: red;
-            display: none;
-            text-align: center;
-        }
-
-        .success-msg {
-            color: green;
+            margin-bottom: 10px;
         }
     </style>
 </head>
 <body>
-    <nav>
-        <i class="fas fa-lock"></i> صفحة تسجيل الدخول
-    </nav>
-    <div class="container">
-        <div class="form-container login-container">
-            <h2>تسجيل الدخول</h2>
-            <div class="input-group">
-                <label for="login-username">اسم المستخدم</label>
-                <input type="text" id="login-username" required>
-            </div>
-            <div class="input-group">
-                <label for="login-password">كلمة المرور</label>
-                <input type="password" id="login-password" required>
-            </div>
-            <button class="btn" onclick="login()">دخول</button>
-            <p class="error-msg" id="login-error-msg">اسم المستخدم أو كلمة المرور غير صحيحة</p>
-            <p>أو</p>
-            <button class="btn" onclick="showSignup()">إنشاء حساب جديد</button>
-        </div>
+    <div id="login">
+        <h2>تسجيل الدخول</h2>
+        <input type="text" id="username" placeholder="اسم المستخدم">
+        <input type="password" id="password" placeholder="كلمة المرور">
+        <button onclick="login()">تسجيل الدخول</button>
+        <button onclick="createAccount()">إنشاء حساب</button>
+    </div>
 
-        <div class="form-container signup-container" style="display: none;">
-            <h2>إنشاء حساب جديد</h2>
-            <div class="input-group">
-                <label for="signup-username">اسم المستخدم</label>
-                <input type="text" id="signup-username" required>
-            </div>
-            <div class="input-group">
-                <label for="signup-password">كلمة المرور</label>
-                <input type="password" id="signup-password" required>
-            </div>
-            <div class="input-group">
-                <label for="signup-confirm-password">تأكيد كلمة المرور</label>
-                <input type="password" id="signup-confirm-password" required>
-            </div>
-            <button class="btn" onclick="signup()">إنشاء حساب</button>
-            <p class="error-msg" id="signup-error-msg">كلمة المرور غير متطابقة أو اسم المستخدم مستخدم بالفعل</p>
-            <p class="success-msg" id="signup-success-msg">تم إنشاء الحساب بنجاح!</p>
-            <button class="btn" onclick="showLogin()">العودة إلى تسجيل الدخول</button>
-        </div>
+    <div id="chat" style="display:none;">
+        <h2>الدردشة</h2>
+        <div id="messages"></div>
+        <input type="text" id="message" placeholder="اكتب رسالتك هنا">
+        <button onclick="sendMessage()">إرسال</button>
     </div>
 
     <script>
-        const users = JSON.parse(localStorage.getItem('users')) || [];
+        let users = [];
+        let messages = [];
+        let currentUser = null;
 
-        function login() {
-            const username = document.getElementById('login-username').value.toLowerCase();
-            const password = document.getElementById('login-password').value;
-            const errorMsg = document.getElementById('login-error-msg');
+        // تحميل البيانات من JSON
+        fetch('users.json')
+            .then(response => response.json())
+            .then(data => users = data.users);
 
-            const user = users.find(user => user.username === username && user.password === password);
+        fetch('messages.json')
+            .then(response => response.json())
+            .then(data => messages = data.messages);
 
-            if (user) {
-                localStorage.setItem('username', username);
-                window.location.href = "chat.html";
-            } else {
-                errorMsg.style.display = 'block';
-            }
+        function saveUsers() {
+            // حفظ البيانات إلى JSON
+            fetch('users.json', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ users })
+            });
         }
 
-        function showSignup() {
-            document.querySelector('.login-container').style.display = 'none';
-            document.querySelector('.signup-container').style.display = 'block';
+        function saveMessages() {
+            // حفظ البيانات إلى JSON
+            fetch('messages.json', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ messages })
+            });
         }
 
-        function showLogin() {
-            document.querySelector('.signup-container').style.display = 'none';
-            document.querySelector('.login-container').style.display = 'block';
-        }
+        function createAccount() {
+            const username = document.getElementById("username").value;
+            const password = document.getElementById("password").value;
 
-        function signup() {
-            const username = document.getElementById('signup-username').value.toLowerCase();
-            const password = document.getElementById('signup-password').value;
-            const confirmPassword = document.getElementById('signup-confirm-password').value;
-            const errorMsg = document.getElementById('signup-error-msg');
-            const successMsg = document.getElementById('signup-success-msg');
-
-            const userExists = users.some(user => user.username === username);
-
-            if (password !== confirmPassword || userExists) {
-                errorMsg.style.display = 'block';
-                successMsg.style.display = 'none';
+            if (!username || !password) {
+                alert("يرجى إدخال جميع المعلومات");
                 return;
             }
 
-            errorMsg.style.display = 'none';
-            users.push({ username: username, password: password });
-            localStorage.setItem('users', JSON.stringify(users));
+            // حفظ بيانات المستخدم
+            users.push({ username, password });
+            saveUsers();
+            alert("تم إنشاء الحساب بنجاح");
+        }
 
-            successMsg.style.display = 'block';
+        function login() {
+            const username = document.getElementById("username").value;
+            const password = document.getElementById("password").value;
+
+            currentUser = users.find(user => user.username === username && user.password === password);
+
+            if (currentUser) {
+                document.getElementById("login").style.display = "none";
+                document.getElementById("chat").style.display = "block";
+            } else {
+                alert("اسم المستخدم أو كلمة المرور غير صحيحة");
+            }
+        }
+
+        function sendMessage() {
+            const message = document.getElementById("message").value;
+
+            if (!message) {
+                alert("يرجى كتابة رسالة");
+                return;
+            }
+
+            // حفظ الرسالة
+            messages.push({ username: currentUser.username, message });
+            saveMessages();
+            displayMessages();
+        }
+
+        function displayMessages() {
+            const messagesDiv = document.getElementById("messages");
+            messagesDiv.innerHTML = "";
+
+            messages.forEach(msg => {
+                const msgDiv = document.createElement("div");
+                msgDiv.textContent = `${msg.username}: ${msg.message}`;
+                messagesDiv.appendChild(msgDiv);
+            });
         }
     </script>
 </body>
